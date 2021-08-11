@@ -1,42 +1,166 @@
----
-title: Migrating to the Container registry from the Docker registry
-intro: 'Docker images previously stored in the Docker registry are being automatically migrated to the {% data variables.product.prodname_container_registry %}.'
-product: '{% data reusables.gated-features.packages %}'
-redirect_from:
-  - /packages/getting-started-with-github-container-registry/migrating-to-github-container-registry-for-docker-images
-  - /packages/guides/container-guides-for-github-packages/migrating-to-github-container-registry-for-docker-images
-  - /packages/guides/migrating-to-github-container-registry-for-docker-images
-versions:
-  fpt: '*'
-shortTitle: Migrate to Container registry
----
+#include <iostream>
+#include <stdlib.h>
 
-{% data variables.product.prodname_dotcom %}'s Docker registry has been replaced by the {% data variables.product.prodname_container_registry %}. If you've stored Docker images in the Docker registry, they will be automatically moved to the {% data variables.product.prodname_container_registry %}. You don't need to do anything. Any scripts or {% data variables.product.prodname_actions %} workflows that use the namespace for the Docker registry (`docker.pkg.github.com`) will continue to work after the migration to the {% data variables.product.prodname_container_registry %} (`ghcr.io`).
+#ifdef __APPLE__
+#include <OpenGL/OpenGL.h>
+#include <GLUT/glut.h>
+#else
+#include <GL/glut.h>
+#endif
 
-Migration is being done gradually, rather than all at once. If your images haven't yet been moved over, hold tight, we'll get to them sometime soon.
+using namespace std;
+void handleKeypress(unsigned char key, int x, int y) {
+    switch (key) {
+    case 27:
+        exit(0);
+    }
+}
+void initRendering() {
+    glEnable(GL_DEPTH_TEST);
+}
+void handleResize(int w, int h) {
+    glViewport(0, 0, w, h);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluPerspective(45.0, (double) w / (double) h, 1.0, 200.0);
+}
+float _angle = 45.0f;
+float _cameraAngle = 0.0f;
+void drawScene() {
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    glRotatef(-_cameraAngle, 0.0f, 1.0f, 0.0f);
+    glTranslatef(-1.0f, -1.5f, -2.0f);
+    glPopMatrix();
+    glPushMatrix();
+    glTranslatef(1.0f, 1.0f, 0.0f);
+    glRotatef(_angle, 0.0f, 1.0f, 0.0f);
+    glScalef(1.0f, 1.0f, 1.0f);
+    glColor3f(1.0, 0.25, 1.0);
+    glColor3f (.5, 0.5, .25);
 
-## How can you tell if your images have been migrated?
+    /* main rec */
+    glClear (GL_COLOR_BUFFER_BIT);
+    glColor3f (.5, .75, .35);
+    glBegin(GL_POLYGON);
+    glVertex3f (0.2, 0.1, 0.0);
+    glVertex3f (0.9, 0.1, 0.0);
+    glVertex3f (0.9, 0.575, 0.0);
+    glVertex3f (0.2, 0.575, 0.0);
+    glEnd();
 
-After your Docker images have been migrated to the {% data variables.product.prodname_container_registry %} you will see the following changes on the details page for a package:
+    /*back rec*/
+    glColor3f (.5, .75, .35);
+    glBegin(GL_POLYGON);
+    glVertex3f (0.2, 0.1, 0.5);
+    glVertex3f (0.9, 0.1, 0.5);
+    glVertex3f (0.9, 0.575, 0.5);
+    glVertex3f (0.2, 0.575, 0.5);
+    glEnd();
 
-* The icon is now the {% data variables.product.prodname_container_registry %} logo, previously it was a Docker logo.
-* The domain in the pull URL is now `ghcr.io`, previously it was `docker.pkg.github.com`.
+    /* left rec */
+    glColor3f (.75, 0.75, .25);
+    glBegin(GL_POLYGON);
+    glVertex3f (0.2, 0.1, 0.5);
+    glVertex3f (0.2, 0.1, 0.0);
+    glVertex3f (0.2, 0.575, 0.0);
+    glVertex3f (0.2, 0.575, 0.5);
+    glEnd();
 
-![{% data variables.product.prodname_container_registry %} details page](/assets/images/help/package-registry/container-registry-details-page.png)
+    /* right rec */
+    glColor3f (.75, 0.75, .25);
+    glBegin(GL_POLYGON);
+    glVertex3f (0.9, 0.1, 0.5);
+    glVertex3f (0.9, 0.1, 0.0);
+    glVertex3f (0.9, 0.575, 0.0);
+    glVertex3f (0.9, 0.575, 0.5);
+    glEnd();
 
-## Key differences between the {% data variables.product.prodname_container_registry %} and the Docker registry
+    /* left tri */
+    glColor3f (.5, 0.5, .25);
+    glBegin(GL_TRIANGLES);
+    glVertex3f (0.9, 0.575, 0.0);
+    glVertex3f (0.9, 0.575, 0.5);
+    glVertex3f (0.9, 0.8, 0.25);
+    glEnd();
 
-The {% data variables.product.prodname_container_registry %} is optimized to support some of the unique needs of containers.
+    /* right tri */
+    glColor3f (.5, 0.5, .25);
+    glBegin(GL_TRIANGLES);
+    glVertex3f (0.2, 0.575, 0.0);
+    glVertex3f (0.2, 0.575, 0.5);
+    glVertex3f (0.2, 0.8, 0.25);
+    glEnd();
 
-With the {% data variables.product.prodname_container_registry %} you can:
-- Store container images within your organization and user account, or connect them to a repository.
-- Choose whether to inherit permissions from a repository, or set granular permissions independently of a repository.
-- Access public container images anonymously.
+    /* roof */
+    glColor3f (.55, 0.35, .2);
+    glBegin(GL_POLYGON);
+    glVertex3f (0.2, 0.575, 0.0);
+    glVertex3f (0.9, 0.575, 0.0);
+    glVertex3f (0.9, 0.8, 0.25);
+    glVertex3f (0.2, 0.8, 0.25);
+    glEnd();
 
-### API queries for details of Docker images
+    /*back roof */
+    glColor3f (.55, 0.35, .2);
+    glBegin(GL_POLYGON);
+    glVertex3f (0.2, 0.575, 0.5);
+    glVertex3f (0.9, 0.575, 0.5);
+    glVertex3f (0.9, 0.8, 0.25);
+    glVertex3f (0.2, 0.8, 0.25);
+    glEnd();
 
-After migration you'll no longer be able to use the GraphQL API to query for packages of `PackageType` "DOCKER". Instead, you can use the REST API to query for packages with the `package_type` "container". For more information, see the REST API article "[Packages](/rest/reference/packages)."
+    /* door */
+    glColor3f (.15, 0.2, .3);
+    glBegin(GL_POLYGON);
+    glVertex3f (0.47, 0.105, 0.0);
+    glVertex3f (0.65, 0.105, 0.0);
+    glVertex3f (0.65, 0.46, 0.0);
+    glVertex3f (0.47, 0.46, 0.0);
+    glEnd();
 
-## Billing
+    /* window 1 */
+    glColor3f (.3, 0.2, .1);
+    glBegin(GL_POLYGON);
+    glVertex3f (0.72, 0.25, 0.0);
+    glVertex3f (0.83, 0.25, 0.0);
+    glVertex3f (0.83, 0.4, 0.0);
+    glVertex3f (0.72, 0.4, 0.0);
+    glEnd();
 
-For more information about billing for the {% data variables.product.prodname_container_registry %}, see "[About  billing for {% data variables.product.prodname_registry %}](/billing/managing-billing-for-github-packages/about-billing-for-github-packages)."
+    /* window 2 */
+    glColor3f (.3, 0.2, .1);
+    glBegin(GL_POLYGON);
+    glVertex3f (0.27, 0.25, 0.0);
+    glVertex3f (0.38, 0.25, 0.0);
+    glVertex3f (0.38, 0.4, 0.0);
+    glVertex3f (0.27, 0.4, 0.0);
+    glEnd();
+
+
+    glFlush ();
+    glPopMatrix();
+    glutSwapBuffers();
+}
+void update(int value) {
+    _angle += 1.0f;
+    if (_angle > 360) {
+        _angle -= 360;
+    }
+    glutPostRedisplay();
+    glutTimerFunc(25, update, 0);
+}
+int main(int argc, char * * argv) {
+    glutInit( & argc, argv);
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
+    glutInitWindowSize(1000, 800);
+    glutCreateWindow("3D House Rotate");
+    initRendering();
+    glutDisplayFunc(drawScene);
+    glutKeyboardFunc(handleKeypress);
+    glutReshapeFunc(handleResize);
+    glutTimerFunc(25, update, 0);
+    glutMainLoop();
+    return 0;
+}
